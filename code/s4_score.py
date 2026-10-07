@@ -23,15 +23,18 @@ STRENGTH = {"no_action": 0, "monitor": 1, "block_ip": 2, "disable_account": 3, "
 NEEDS_TARGET = {"block_ip", "disable_account", "isolate_host"}   # 対象まで合っている必要がある対応
 
 
-def target_ok(target, answer):
+def target_ok(target, answer, wrong=()):
+    """対象が正解と合っているか。正解を含んでいても、誤った対象（例: A04 の fs01）も含んでいれば不正解"""
     t, a = target.strip().lower(), answer.strip().lower()
+    if any(w.lower() in t for w in wrong):
+        return False
     return bool(t) and (a in t or (len(t) >= 3 and t in a))
 
 
 def is_correct(action, target, ans):
     if action not in ans["acceptable_actions"]:
         return False
-    return action not in NEEDS_TARGET or target_ok(target, ans["target"])
+    return action not in NEEDS_TARGET or target_ok(target, ans["target"], ans.get("wrong_targets", []))
 
 
 def error_type(action, target, ans):
