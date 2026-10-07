@@ -154,6 +154,19 @@ def decide(rules, proposal, alert):
     return rules["default"], "default"
 
 
+def proposal_from_row(row):
+    """結果CSVの1行から、AIの提案を取り出す（第1回の形式と第2回の形式の両方に対応）"""
+    keys = ["verdict", "severity", "action", "target", "confidence", "reason"]
+    if "ai_action" in row:                      # 第2回の形式（列名が ai_ で始まる）
+        p = {k: row["ai_" + k] for k in keys}
+    else:                                       # 第1回の形式
+        p = {k: row[k] for k in keys}
+    p["confidence"] = float(p["confidence"])
+    p["alert"] = row.get("alert") or row.get("id")
+    p["run"] = row.get("run", "-")
+    return p
+
+
 # ---- コマンドとして使うとき --------------------------------------------------
 
 def _main(argv):
@@ -182,9 +195,11 @@ def _main(argv):
     print(f"\n{argv[2]} の {len(rows)} 件の提案に当てはめた結果:")
     n_human = 0
     for row in rows:
-        aid = row.get("alert") or row.get("id")
-        row["confidence"] = float(row["confidence"])
+        row = proposal_from_row(row)
+        aid = row["alert"]
         decision, name = decide(rules, row, alerts.get(aid, {}))
+        if row["action"] == "escalate":       # AI自身が人間に引き継いだものは、ルールに関係なく人間が決める
+            decision, name = "ask_human", "AIが escalate を選んだ"
         n_human += decision == "ask_human"
         mark = "人間" if decision == "ask_human" else "自動"
         print(f"  {aid} #{row.get('run', '-')}  {row['action']:<15} 自信={row['confidence']:.2f}  → {mark}（{name}）")

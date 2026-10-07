@@ -88,6 +88,12 @@ python dsl.py rules/自分のルール.yaml
 python dsl.py rules/自分のルール.yaml ../results/session1_20261020_103000.csv
 ```
 
+第3回からは、**自分の判断（承認するか）と比べて**確かめられます（第3回マニュアル参照）。
+
+```
+python s3_check.py rules/自分のルール.yaml
+```
+
 ## 5. 用意してあるルール
 
 | ファイル | 内容 |
@@ -95,5 +101,6 @@ python dsl.py rules/自分のルール.yaml ../results/session1_20261020_103000.
 | `rules/human_centered.yaml` | 条件1「人間中心」：ルールなし、すべて `ask_human` |
 | `rules/full_delegation.yaml` | 条件2「完全委譲」：ルールなし、すべて `auto` |
 | `rules/example.yaml` | 条件3「判断DSL」の例。第3回はこれを写して自分のルールを作る |
+| `rules/team.yaml` | 第3回で班ごとに作る。第4回の実験で条件3として使う |
 
 3つの条件は、どれも同じ仕組みで動きます。違うのはルールだけです。
