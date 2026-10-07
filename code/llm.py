@@ -13,6 +13,7 @@ import time
 from datetime import datetime
 from pathlib import Path
 
+import openai
 from openai import OpenAI
 
 LOG_FILE = Path(__file__).parent / "logs" / "api_calls.jsonl"
@@ -53,10 +54,29 @@ def _log(kind, messages, output, usage, seconds):
         f.write(json.dumps(rec, ensure_ascii=False) + "\n")
 
 
+def _create(**kwargs):
+    """APIを呼ぶ。よくあるエラーは、対処が分かる日本語のメッセージにして終了する"""
+    try:
+        return _get_client().chat.completions.create(model=_model(), **kwargs)
+    except openai.AuthenticationError:
+        sys.exit("[APIエラー 401] APIキーが正しくありません。写し間違いや前後の空白を確認してください。")
+    except openai.NotFoundError:
+        sys.exit(f"[APIエラー 404] モデル「{_model()}」が見つかりません。OPENAI_MODEL を確認してください。")
+    except openai.RateLimitError as e:
+        if "insufficient_quota" in str(e) or "credit" in str(e):
+            sys.exit("[APIエラー 429] APIの利用残高（クレジット）がありません。教員に連絡してください。")
+        sys.exit("[APIエラー 429] 呼び出しが多すぎます。1分ほど待ってから再実行してください。続く場合は教員へ。")
+    except openai.BadRequestError as e:
+        sys.exit(f"[APIエラー 400] リクエストが受け付けられませんでした。モデルが構造化出力（json_schema）に"
+                 f"対応していない可能性があります。教員に連絡してください。\n詳細: {e}")
+    except openai.APIConnectionError:
+        sys.exit("[接続エラー] OpenAI に接続できません。ネットワークを確認してください。")
+
+
 def ask(messages):
     """messages を送り、AIの返答（文字列）を返す"""
     t0 = time.time()
-    res = _get_client().chat.completions.create(model=_model(), messages=messages)
+    res = _create(messages=messages)
     text = res.choices[0].message.content
     _log("text", messages, text, res.usage, time.time() - t0)
     return text
@@ -65,8 +85,7 @@ def ask(messages):
 def ask_json(messages, schema, name="answer"):
     """messages を送り、schema（JSON Schema）に従った返答を dict で返す"""
     t0 = time.time()
-    res = _get_client().chat.completions.create(
-        model=_model(),
+    res = _create(
         messages=messages,
         response_format={
             "type": "json_schema",
