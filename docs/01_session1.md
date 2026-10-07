@@ -215,5 +215,7 @@ python s1_agent.py --repeat 3
 | `NotFoundError` / `model ... does not exist` | `OPENAI_MODEL` のモデル名を確認する |
 | `RateLimitError` / `429` | 呼び出しが多すぎます。少し待ってから再実行する。続く場合は教員へ |
 | `ModuleNotFoundError: No module named 'openai'` | 仮想環境が有効になっていない → `source venv/bin/activate` |
+| `error: externally-managed-environment`（pip のとき） | 仮想環境の外の Python が動いている。`python check_setup.py` の1行目を確認する。`(venv)` と出ているのに直らないときは、`python` に別名（alias）が付いていることがある → `venv/bin/python -m pip install -r requirements.txt` のように venv の Python を直接指定する（`type python` で確認できる） |
+| `[notice] A new release of pip is available` | 気にしなくてよい（エラーではない） |
 
 すべての呼び出しは `code/logs/api_calls.jsonl` に記録されます（送った内容、返答、トークン数、かかった時間）。おかしな結果が出たときは、まずここを見ましょう。
