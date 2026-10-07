@@ -58,9 +58,10 @@ def propose(alert):
 if __name__ == "__main__":
     p = argparse.ArgumentParser()
     p.add_argument("--repeat", type=int, default=1, help="同じアラートを何回ずつ判断させるか")
+    p.add_argument("--data", default=str(ROOT / "data" / "alerts_session1.json"), help="アラートのファイル")
     args = p.parse_args()
 
-    alerts = json.loads((ROOT / "data" / "alerts_session1.json").read_text(encoding="utf-8"))
+    alerts = json.loads(Path(args.data).read_text(encoding="utf-8"))
     (ROOT / "results").mkdir(exist_ok=True)
     out = ROOT / "results" / f"session1_{datetime.now():%Y%m%d_%H%M%S}.csv"
 
