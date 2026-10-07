@@ -1,0 +1,4 @@
+# 条件1「人間中心」：AIは提案だけ。すべて人間が承認する
+name: 人間中心
+rules: []
+default: ask_human

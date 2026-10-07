@@ -1,0 +1,26 @@
+# 条件3「判断DSL」の例。第3回では、これを写して自分のルールを作る。
+# ルールは上から順に調べ、最初に当てはまったものだけが使われる。
+name: 判断DSLの例
+rules:
+  - name: 重要な機器の隔離は人間が確認する
+    if:
+      action: isolate_host
+      asset.importance: 高
+    then: ask_human
+
+  - name: AIの自信が低いときは人間が確認する
+    if:
+      confidence: "< 0.7"
+    then: ask_human
+
+  - name: アカウント停止は人間が確認する
+    if:
+      action: disable_account
+    then: ask_human
+
+  - name: すぐ元に戻せる対応はAIに任せる
+    if:
+      action: [no_action, monitor, block_ip]
+    then: auto
+
+default: ask_human   # どのルールにも当てはまらないとき

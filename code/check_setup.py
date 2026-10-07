@@ -12,6 +12,11 @@ try:
     print(f"openai ライブラリ {openai.__version__} OK")
 except ImportError:
     print("openai ライブラリがありません → pip install -r requirements.txt"); ok = False
+try:
+    import yaml
+    print(f"pyyaml ライブラリ {yaml.__version__} OK（第2回から使用）")
+except ImportError:
+    print("pyyaml ライブラリがありません → pip install -r requirements.txt"); ok = False
 for var in ["OPENAI_API_KEY", "OPENAI_MODEL"]:
     v = os.environ.get(var)
     if v:
