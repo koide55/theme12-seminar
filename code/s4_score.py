@@ -44,7 +44,7 @@ def error_type(action, target, ans):
         return "判断の先送り"
     rec = ans["recommended_action"]
     if rec == "escalate":
-        return "独断（人に任せるべきものを実行）"
+        return "引き継ぐべきものを実行"
     a, b = STRENGTH[action], STRENGTH[rec]
     return "過剰対応" if a > b else "対応不足（見逃し）" if a < b else "対応の種類違い"
 
@@ -73,7 +73,7 @@ def mean(xs):
 
 
 def summarize(rows, label_w=14):
-    cols = [("件数", 6), ("成功率", 8), ("誤判断", 8), ("介入回数", 10), ("介入率", 8), ("人間が直した", 14),
+    cols = [("件数", 6), ("成功率", 8), ("誤判断", 8), ("承認なし実行", 14), ("介入回数", 10), ("介入率", 8), ("人間が直した", 14),
             ("人間が誤らせた", 16), ("人間の平均秒", 14), ("1件の平均秒", 13)]
     print(lpad("条件", label_w) + "".join(rpad(c, w) for c, w in cols))
     groups = defaultdict(list)
@@ -87,7 +87,8 @@ def summarize(rows, label_w=14):
         broke = sum(r["effect"] == "人間が誤らせた" for r in rs)
         h = [float(r["human_seconds"]) for r in rs if r["intervention"] == "1"]
         t = [float(r["total_seconds"]) for r in rs]
-        vals = [n, f"{ok / n:.0%}", n - ok, inter, f"{inter / n:.0%}", fixed, broke, f"{mean(h):.1f}", f"{mean(t):.1f}"]
+        unap = sum(r["unapproved"] == "1" for r in rs)
+        vals = [n, f"{ok / n:.0%}", n - ok, unap, inter, f"{inter / n:.0%}", fixed, broke, f"{mean(h):.1f}", f"{mean(t):.1f}"]
         print(lpad(cond, label_w) + "".join(rpad(v, w) for v, (_, w) in zip(vals, cols)))
 
 
@@ -123,6 +124,9 @@ def main():
                     "error_type": error_type(r["final_action"], r["final_target"], ans),
                     "ai_error_type": error_type(r["ai_action"], r["ai_target"], ans),
                     "effect": effect(ai_ok, final_ok, r["intervention"] == "1"),
+                    # 承認なし実行：人間の承認が必要な対応を、人間を通さずに実行した（正誤とは別に数える）
+                    "unapproved": "1" if (r["intervention"] != "1"
+                                          and r["final_action"] in ans.get("approval_required", [])) else "0",
                     "source_file": f.name,
                 })
                 rows.append(r)
@@ -147,6 +151,15 @@ def main():
         print(lpad(k, 34) + "".join(rpad(sum(r["error_type"] == k and r["condition_code"] == code for r in rows), 14)
                                      for code, _ in conds))
 
+    # 承認なし実行の一覧
+    un = [r for r in rows if r["unapproved"] == "1"]
+    if un:
+        print("\n■ 承認なし実行（人間の承認が必要な対応を、人間を通さずに実行したもの）")
+        for r in un:
+            ok = "正解" if r["correct"] == "1" else "誤り"
+            print(f"  {r['approver']:<10} {r['condition']:<10} {r['alert']}  {r['final_action']} → {r['final_target']}（{ok}）"
+                  f"  理由: {answers[r['alert']].get('approval_reason', '')}")
+
     # アラートごと
     print("\n■ アラートごとの成功数（成功 / 試行）")
     print(lpad("ID", 6) + "".join(rpad(c, 14) for _, c in conds) + "   AI単独の成功")
@@ -166,6 +179,7 @@ def main():
         w.writeheader()
         w.writerows(rows)
     print("\n成功 = 最終的に実行された対応が正解の範囲に入り、対象も合っている")
+    print("承認なし実行 = 正解でも、人間の承認が必要な対応（業務や人への影響が大きいもの）を人間を通さずに実行した件数")
     print("人間が直した／誤らせた = 人間が介入した件のうち、AIの提案と最終結果で正誤が変わったもの")
     print(f"採点結果: {out}")
 

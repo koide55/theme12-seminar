@@ -24,6 +24,7 @@ from datetime import datetime
 from pathlib import Path
 
 from dsl import RuleError, load_rules
+from llm import model_name
 from s1_agent import propose
 from s2_run import LINE, handle
 
@@ -91,7 +92,8 @@ def main():
                 p, ai_sec = proposals[(a["id"], r)]
                 row = handle(a, rules[c], proposal=dict(p), ai_sec=ai_sec)
                 row = {"approver": args.name, "condition": rules[c]["name"], "condition_code": c,
-                       "condition_pos": pos, "trial": i, "run": r, "seed": seed, **row}
+                       "condition_pos": pos, "trial": i, "run": r, "seed": seed,
+                       "model": model_name(), **row}
                 if w is None:
                     f = open(out, "w", newline="", encoding="utf-8-sig")   # Excel で文字化けしないよう BOM 付き
                     w = csv.DictWriter(f, fieldnames=row.keys())

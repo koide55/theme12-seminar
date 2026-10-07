@@ -22,6 +22,7 @@ from datetime import datetime
 from pathlib import Path
 
 from dsl import RuleError, decide, load_rules
+from llm import model_name
 from s1_agent import ACTIONS, propose   # 第1回で作った「AIに提案させる」部品をそのまま使う
 
 ROOT = Path(__file__).parent.parent
@@ -167,7 +168,7 @@ def main():
             for aid in ids:
                 row = handle(all_alerts[aid], rules)
                 rows.append({"condition": rules["name"], "rules_file": Path(args.rules).name,
-                             "approver": args.name, "run": r + 1, **row})
+                             "approver": args.name, "run": r + 1, "model": model_name(), **row})
     except (KeyboardInterrupt, EOFError):
         print("\n\n中断しました。ここまでの結果を保存します。")
     finally:

@@ -26,6 +26,11 @@ def _model():
     return model
 
 
+def model_name():
+    """使っているモデル名（結果のCSVに記録する）"""
+    return _model()
+
+
 _client = None
 
 
