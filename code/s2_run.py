@@ -92,12 +92,16 @@ def _rule_label(rule_name):
 
 # ---- 1件のアラートを処理する ----------------------------------------------------
 
-def handle(alert, rules):
+def handle(alert, rules, proposal=None, ai_sec=None):
+    """1件のアラートを処理する。proposal を渡したときは、APIを呼ばずにその提案を使う（第4回で使用）"""
     show_alert(alert)
 
-    t0 = time.monotonic()
-    p = propose(alert)                         # AIに提案させる（APIを呼ぶ）
-    ai_sec = time.monotonic() - t0
+    if proposal is None:
+        t0 = time.monotonic()
+        p = propose(alert)                     # AIに提案させる（APIを呼ぶ）
+        ai_sec = time.monotonic() - t0
+    else:
+        p = proposal
     show_proposal(p)
 
     decision, rule_name = decide(rules, p, alert)   # 判断DSL：人間を呼ぶかどうか
