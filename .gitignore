@@ -1,0 +1,14 @@
+# APIキーなどの秘密情報
+.env
+*.key
+# 実行結果・ログ（各自の手元に残す）
+results/
+code/logs/
+__pycache__/
+venv/
+.DS_Store
+
+# 教員用資料（学生用リポジトリには含めない）
+instructor/
+# 引き継ぎ指示書（教員・Claude用）
+HANDOFF.md
