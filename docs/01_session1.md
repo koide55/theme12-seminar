@@ -78,15 +78,103 @@ messages = [
 
 ## 3. 環境構築
 
-### 3.1 リポジトリを取得して仮想環境を作る
+> 💡 **3.0節（ソフトのインストール）は、できるだけ授業の前に済ませておいてください。** 授業中に始めると、ダウンロードとインストールだけで時間がなくなります。
+
+### 3.0 必要なソフトをインストールする
+
+次の3つが必要です。すでに入っている人は、バージョンの確認だけでかまいません。
+
+| ソフト | 用途 | 入手先 |
+|---|---|---|
+| **Git** | 教材（リポジトリ）の取得 | https://git-scm.com/ |
+| **Python 3.10 以上** | プログラムの実行 | https://www.python.org/downloads/ |
+| **Visual Studio Code**（VS Code） | プログラムの編集と、ターミナルでの実行 | https://code.visualstudio.com/ |
+
+#### Windows の場合
+
+1. **Git**：https://git-scm.com/ から「Download for Windows」を選んでインストーラを実行します。設定はすべて初期値（Next を押し続ける）でかまいません。
+2. **Python**：https://www.python.org/downloads/ からインストーラを実行します。
+   - ⚠️ **最初の画面の下にある「Add python.exe to PATH」に必ずチェックを入れてください。** これを忘れると、`python` コマンドが見つからなくなります（忘れた場合は、インストーラを再実行して「Modify」から設定し直すか、アンインストールして入れ直す）。
+3. **VS Code**：https://code.visualstudio.com/ からインストーラを実行します。途中の「PATH への追加」にチェックを入れておきます。起動後、左の拡張機能アイコンから **「Python」拡張機能（Microsoft 製）** を入れておくと便利です。
+
+> 参考：`winget` が使える人は、PowerShell で次のようにまとめてインストールすることもできます。
+> ```powershell
+> winget install --id Git.Git -e
+> winget install --id Python.Python.3.12 -e
+> winget install --id Microsoft.VisualStudioCode -e
+> ```
+
+4. **PowerShell のスクリプト実行を許可する**（Windows だけ・最初に1回だけ）
+
+   Windows の初期設定では、PowerShell でスクリプト（`.ps1` ファイル）を実行できません。このままだと、3.1節で仮想環境を有効にする `venv\Scripts\Activate.ps1` が「このシステムではスクリプトの実行が無効になっているため…」というエラーで止まります。
+
+   1. スタートメニューで「PowerShell」と検索し、**右クリック →「管理者として実行」** で開きます（「このアプリがデバイスに変更を加えることを許可しますか？」には「はい」）。
+   2. 次のコマンドを実行します。確認を求められたら `Y` を入力して Enter を押します。
+      ```powershell
+      Set-ExecutionPolicy RemoteSigned
+      ```
+   3. 設定を確認します。`RemoteSigned` と表示されればOKです。
+      ```powershell
+      Get-ExecutionPolicy
+      ```
+   4. **管理者の PowerShell はここで閉じてください。** 以降の作業は、通常の PowerShell か VS Code のターミナルで行います（管理者のままで作業を続けないこと）。
+
+   > `RemoteSigned` は「自分のPCで作ったスクリプトは実行してよい。インターネットから取ってきたスクリプトは署名付きのものだけ実行する」という設定です。
+   > 大学や会社の管理下にあるPCで、管理者として実行できない・設定が変わらない場合は、教員に相談してください。
+
+#### macOS の場合
+
+1. **Git**：ターミナルで `git --version` を実行します。入っていなければ、インストールを促す画面が出るので「インストール」を押します（または `xcode-select --install`）。
+2. **Python**：ターミナルで `python3 --version` を実行し、3.10 以上ならそのまま使えます。古い場合は https://www.python.org/downloads/ からインストールします。
+3. **VS Code**：https://code.visualstudio.com/ からダウンロードし、「アプリケーション」フォルダに移動します。「Python」拡張機能を入れておくと便利です。
+
+#### インストールできたか確認する
+
+**新しく開いた**ターミナル（VS Code では「ターミナル」→「新しいターミナル」）で、次を実行します。インストール前から開いていたターミナルでは、コマンドが見つからないことがあります。
+
+```powershell
+# Windows
+git --version
+python --version
+code --version
+```
 
 ```bash
+# macOS
+git --version
+python3 --version
+code --version
+```
+
+3つともバージョン番号が表示されればOKです（Python は 3.10 以上）。
+
+### 3.1 リポジトリを取得して仮想環境を作る
+
+VS Code を開き、メニューの「ターミナル」→「新しいターミナル」でターミナルを開いて、次を実行します。**Windows と macOS でコマンドが少し違う**ので注意してください。
+
+```powershell
+# Windows (PowerShell)
+git clone <教員から指示されたURL> theme12
+cd theme12
+python -m venv venv
+venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+```
+
+```bash
+# macOS / Linux
 git clone <教員から指示されたURL> theme12
 cd theme12
 python3 -m venv venv
-source venv/bin/activate        # Windows (PowerShell) は venv\Scripts\Activate.ps1
+source venv/bin/activate
 pip install -r requirements.txt
 ```
+
+仮想環境が有効になると、プロンプトの先頭に `(venv)` と表示されます。**ターミナルを開き直したときは、`venv\Scripts\Activate.ps1`（macOS は `source venv/bin/activate`）をもう一度実行してください。**
+
+> Windows では `python3` ではなく **`python`** を使います。`python3` と打つと Microsoft Store が開くことがあります。
+>
+> VS Code で `theme12` フォルダを開いておくと（「ファイル」→「フォルダーを開く」）、ファイルの編集と実行が同じ画面でできます。
 
 ### 3.2 APIキーとモデル名を設定する
 
@@ -210,11 +298,15 @@ python s1_agent.py --repeat 3
 
 | 症状 | 対処 |
 |---|---|
-| `環境変数 OPENAI_API_KEY が設定されていません` | 3.2節の `export` を、今使っている端末で実行し直す |
+| `環境変数 OPENAI_API_KEY が設定されていません` | 3.2節の設定（macOS は `export`、Windows は `$env:...`）を、今使っている端末で実行し直す。ターミナルを開き直すと消えます |
 | `AuthenticationError` / `401` | APIキーの写し間違い。前後に空白が入っていないか確認する |
 | `NotFoundError` / `model ... does not exist` | `OPENAI_MODEL` のモデル名を確認する |
 | `RateLimitError` / `429` | 呼び出しが多すぎます。少し待ってから再実行する。続く場合は教員へ |
-| `ModuleNotFoundError: No module named 'openai'` | 仮想環境が有効になっていない → `source venv/bin/activate` |
+| `ModuleNotFoundError: No module named 'openai'` | 仮想環境が有効になっていない → `source venv/bin/activate`（Windows は `venv\Scripts\Activate.ps1`） |
+| （Windows）`このシステムではスクリプトの実行が無効になっているため、ファイル ...Activate.ps1 を読み込むことができません` | スクリプトの実行が許可されていない → 3.0節の手順4（管理者の PowerShell で `Set-ExecutionPolicy RemoteSigned`）を行い、ターミナルを開き直す |
+| （Windows）`git` / `python` / `code` が「認識されません」 | インストール後に開き直していないターミナルを使っている → ターミナル（VS Code ごと）を開き直す。それでもだめなら、インストール時に PATH への追加を忘れている（3.0節） |
+| （Windows）`python3` と打つと Microsoft Store が開く | Windows では `python` を使う |
+| （Windows）`python` と打つと Microsoft Store が開く | Python のインストール時に「Add python.exe to PATH」にチェックを入れ忘れている → 3.0節を見てインストールし直す。または「設定」→「アプリ」→「アプリ実行エイリアス」で `python.exe` / `python3.exe` をオフにする |
 | `error: externally-managed-environment`（pip のとき） | 仮想環境の外の Python が動いている。`python check_setup.py` の1行目を確認する。`(venv)` と出ているのに直らないときは、`python` に別名（alias）が付いていることがある → `venv/bin/python -m pip install -r requirements.txt` のように venv の Python を直接指定する（`type python` で確認できる） |
 | `[notice] A new release of pip is available` | 気にしなくてよい（エラーではない） |
 

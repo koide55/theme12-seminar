@@ -68,7 +68,7 @@
 ## 前提知識・準備
 
 - **前提知識**：Pythonの基本。生成AIのAPIやセキュリティの専門知識は不要です（第1コマで説明します）。
-- **機材**：ノートPC
+- **機材**：ノートPC（Windows / macOS）。**Git、Python 3.10以上、Visual Studio Code を事前にインストールしておいてください。** Windows の人は、PowerShell を管理者として開き、スクリプトの実行を許可する設定（`Set-ExecutionPolicy RemoteSigned`）も必要です。手順は `docs/01_session1.md` の3.0節にあります。
 - **APIキー**：OpenAI APIのキーは研究室で用意します。
 
 ## 注意事項

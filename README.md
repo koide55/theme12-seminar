@@ -12,7 +12,7 @@ data/   模擬アラート（すべて架空）
 
 ## はじめに
 
-まず `docs/00_overview.md` でテーマ全体の流れを確認し、`docs/01_session1.md` の「3. 環境構築」から始めてください。
+まず `docs/00_overview.md` でテーマ全体の流れを確認し、`docs/01_session1.md` の「3. 環境構築」から始めてください。Git・Python・VS Code のインストールと、Windows の PowerShell の設定（3.0節）は授業前に済ませておいてください。
 
 ## 注意
 
